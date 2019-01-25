@@ -11,7 +11,9 @@ A workshop on outside in, multi layered, behavioural driven development (BDD)
 _Story_
 
 > As a developer
+
 > I want a web app setup with CI/CD
+
 > So that I have delivery to the web
 
 * **framework setup**
@@ -48,7 +50,9 @@ _Story_
 # Story 1 - first feature - images on a page
 
 > As an internet user
+
 > I want the game to display images
+
 > which will keep me interested and guessing as to what term was used to create them
 
 * Introduction to all the layers
