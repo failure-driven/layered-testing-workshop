@@ -129,3 +129,29 @@ _Story_
 - expand to cover missing concepts?
 - add payment gateway?
 
+# Ideas
+
+This is currently an ideas section but may turn into some higher level ideas,
+todos, overriding principles etc.
+
+- how to "scaffold" for various levels: basic, extend, advanced?
+- how to bring in blooms taxonomy of learning, in particular to encourage
+  participants to teach others and hence themselves achieve highest level of
+  learning?
+- practice this, which bits are necessary? which can be skipped? how long will
+  it take to run?
+- Higher levels of what it means to Test Drive
+  - test driven development vs design
+  - what feedback can I get before writing code? is the core of testing
+    - how to actively seek feedback?
+    - what is the fastest feedback for the particular code I am writing?
+    - how can I understand this later?
+    - how will this impact the design?
+    - how will this help me identify when it is broken?
+    - how will this help me refactor later on?
+    - how will this allow me to extend this later on?
+- how to bring in thin slice, not only in technology (UI, service, persistance)
+  but business process, and how this drives out assumptions around data design
+  etc early on.
+  - where is the right place to bring thin slice into workshop?
+
