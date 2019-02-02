@@ -121,6 +121,8 @@ feature 'Game App', js: true do
 
     Then 'user sees they are on rails' do
       wait_for { page }.to have_content("Yay I'm on Rails")
+      wait_for { page }.to have_content("Rails version: 6.0.0")
+      wait_for { page }.to have_content("Ruby version: ruby 2.6.0")
     end
   end
 end
@@ -241,6 +243,8 @@ feature 'Game App', js: true do
     Then 'user sees they are on rails' do
       # note the apostrophe next line
       wait_for { page }.to have_content("Yay! You’re on Rails!")
+      wait_for { page }.to have_content("Rails version: 6.0.0")
+      wait_for { page }.to have_content("Ruby version: ruby 2.6.0")
     end
   end
 end
@@ -294,7 +298,13 @@ group :development, :test do
   ...
 ```
 
-now `bundle install`
+now `bundle install` or simply `bundle`
+
+As the setup for `binding.pry` is now complete we can commit
+
+COMMIT [add binding.pry and better tooling for debugging](https://github.com/failure-driven/game-app/commit/f9c7c5218ebc4959b98e1c8e21bc4481e8ab8399)
+
+Having looked at the source of the default rails page we see that the version can be found with the CSS selector `p.version` but not being confident with how to pull out all the information we with Capybara we will put in a `binding.pry` to "pry" into the code and get a better idea.
 
 > spec/features/flows/game-app_spec.rb
 
@@ -366,8 +376,25 @@ feature 'Game App', js: true do
 end
 ```
 
-this now passes but is a bit of a mess for a high level flow spec so let's hide
-it away in a page fragment.
+In this case we have written the test after the fact. The aim here is still to get across some core "iteration 0" concepts so bear with us. Ofcourse to confirm the test is actually working it is worth at least changing the expectation to see how it would fail and if that is instructive in how to fix it. Say if we changed it to running ruby 3.0.0
+
+```sh
+Failures:
+
+  1) Game App I have a game app
+     Failure/Error:
+       ...
+
+       Diff:
+       -/^ruby 3.0.0/
+       +"ruby 2.6.0p0 (2018-12-25 revision 66547) [x86_64-darwin16]"
+```
+
+This seems reasonably readable in that the expected and actual ruby versions are show next to each other even if it does not say that we are expecting to be running a particular version of ruby. We have a passing test and more assertion so we can commit.
+
+COMMIT [confirm rails and ruby version](https://github.com/failure-driven/game-app/commit/5810b82485a5c61f2e694ac6ec06490ced09aaa8)
+
+There is room for refactoring. Although this now passes it is a bit of a mess for a high level flow spec so let's hide the complexity away in a page fragment.
 
 page fragment setup
 
@@ -398,7 +425,6 @@ module PageFragments
   end
 end
 
-
 # add following to end of spec/rails_helper.rb
   ...
   # include PageFragments in features
@@ -406,7 +432,11 @@ end
 end
 ```
 
-a simple page fragment to return the welcome page message and ruby and rails versions.
+The basics of page fragments are now setup so we can commit
+
+COMMIT [:wrench: page fragment loading setup](https://github.com/failure-driven/game-app/commit/6e721dd94be18dd0bb2f130b9906e4be0499a67a)
+
+Now we can write a simple page fragment to return the welcome page message and ruby and rails versions.
 
 ```
 cat > spec/support/features/page_fragments/welcome.rb
@@ -448,9 +478,27 @@ feature 'Game App', js: true do
 end
 ```
 
-TODO - need to show this fail first!!! and is the match there the best?
+The failure is not too perfect but good enough. In this case it is more about getting page fragments setup then anything else
+
+```
+Failures:
+  1) Game App I have a game app
+     Failure/Error:
+         focus_on(:welcome).message_and_versions
+       ...
+       Diff:
+        :message => "Yay! You’re on Rails!",
+       -:rails_version => (match /^6.0.0/),
+       -:ruby_version => (match /^ruby 2.7.0/),
+       +:rails_version => "6.0.0.beta1",
+       +:ruby_version => "ruby 2.6.0p0 (2018-12-25 revision 66547) [x86_64-darwin16]",
+```
+
+COMMIT [:tada: simplified flow by putting code in page fragment](https://github.com/failure-driven/game-app/commit/e1231c40a768d6f12590030d0cab5f4852a9b776)
 
 # React and Jest
+
+# Rubocop and ESlint
 
 # CI
 
