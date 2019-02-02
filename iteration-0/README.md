@@ -9,12 +9,13 @@
 The aim of iteration 0 is to have all the code and tooling in
 place to be able to regularily and confidently deploy to
 production. These means setting up:
-* The code frameworks - Rails and ReactJS
-* Server configuration for servers, databases, etc
-* a basic test suite
-* A CI server to run the tests
-* A CD script to push code to production
-* Production or some kind of hosting.
+
+- The code frameworks - Rails and ReactJS
+- Server configuration for servers, databases, etc
+- a basic test suite
+- A CI server to run the tests
+- A CD script to push code to production
+- Production or some kind of hosting.
 
 In our example we will use Rails as the framework for the backend
 and ReactJS as the Single Page App (SPA) frontend. We will use
@@ -27,27 +28,28 @@ If there are any issues configuring this there will also be the
 ability to use vagrant to use a pre configured machine setup.
 
 Options for using the latest and greatest - as of the time of writing
-* ruby 2.6.0 - https://www.ruby-lang.org/en/ 25 Dec 2018
+
+- ruby 2.6.0 - https://www.ruby-lang.org/en/ 25 Dec 2018
   ```
   brew install rbenv
   rbenv install 2.6.0
   ruby -v
   ```
-* node 11.8.0 - https://nodejs.org/en/ 24 Jan 2019
+- node 11.8.0 - https://nodejs.org/en/ 24 Jan 2019
   ```
   brew install nvm
   nvm install 11.8.0
   node -v
     v11.8.0
   ```
-* rails 6.0.0.beta1 https://rubygems.org/gems/rails/versions 18 Jan 2019
+- rails 6.0.0.beta1 https://rubygems.org/gems/rails/versions 18 Jan 2019
   ```
   gem install bundler
   gem install rails --pre
   rails -v
     Rails 6.0.0.beta1
   ```
-* postgres
+- postgres
   TODO confirm? create default DB named username? some basic commands?
   ```
   brew install postgres
@@ -78,6 +80,8 @@ open http://localhost:3000
   Rails version: 6.0.0.beta1
   Ruby version: ruby 2.6.0p0 (2018-12-25 revision 66547) [x86_64-darwin16]
 ```
+
+COMMIT ":tada: rails new"
 
 Add RSpec with capybara, selenium webdriver, and screen shots.
 
@@ -133,12 +137,44 @@ rspec
 vi config/routes.rb
 
 Rails.application.routes.draw do
+  ...
   get '/' => "rails/welcome#index"
 end
 
 # Failure
 Failure/Error: wait_for { page }.to have_content("Yay I'm on Rails")
   expected to find text "Yay I'm on Rails" in "Yay! You’re on Rails!\nRails version: 6.0.0.beta1\nRuby version: ruby 2.6.0p0 (2018-12-25 revision 66547) [x86_64-darwin16]"
+
+Assuming we have no idea but we want to move on, we can pend the spec. Just say
+that it is in progress, in fact it should actually fail.
+
+> spec/features/flows/game-app_spec.rb
+```
+
+...
+Then 'user sees they are on rails' do
+pending "for some reason I am not on rails?"
+wait_for { page }.to have_content("Yay I'm on Rails")
+end
+
+```
+
+returns with the pending
+
+```
+
+    When user visits the app
+    Then user sees they are on rails (FAILED)
+
+I have a game app (PENDING: for some reason I am not on rails?)
+
+```
+
+COMMIT "a pending spec"
+
+TODO currently COMMIT [:construction| specs setup and a pending spec](https://github.com/failure-driven/game-app/commit/ebde6532f3d4955d6c08de4351c72cccc65c4f25)
+
+- split out the setup from the pending spec
 
 # configure the browser and screen shots
 vi spec/rails_helper.rb
@@ -211,6 +247,21 @@ end
 ```
 
 passing test
+
+```
+    When user visits the app
+    Then user sees they are on rails
+  I have a game app
+
+Finished in 1.6 seconds (files took 2.89 seconds to load)
+1 example, 0 failures
+```
+
+COMMIT "passing spec for being on rails"
+
+TODO again COMMIT [passing speec for being on rails](https://github.com/failure-driven/game-app/commit/2f5c9be4f02be0c5b49f44397cb3845cdf3a7039)
+
+- split out capybara setup from the actual commit
 
 ```
 Game App
