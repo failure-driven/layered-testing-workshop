@@ -174,7 +174,7 @@ I have a game app (PENDING: for some reason I am not on rails?)
 
 COMMIT "a pending spec"
 
-TODO currently COMMIT [:construction| specs setup and a pending spec](https://github.com/failure-driven/game-app/commit/ebde6532f3d4955d6c08de4351c72cccc65c4f25)
+TODO currently COMMIT [:construction: specs setup and a pending spec](https://github.com/failure-driven/game-app/commit/ebde6532f3d4955d6c08de4351c72cccc65c4f25)
 
 - split out the setup from the pending spec
 
@@ -261,7 +261,7 @@ Finished in 1.6 seconds (files took 2.89 seconds to load)
 1 example, 0 failures
 ```
 
-COMMIT "passing spec for being on rails"
+COMMIT [passing spec for being on rails](https://github.com/failure-driven/game-app/commit/2f5c9be4f02be0c5b49f44397cb3845cdf3a7039)
 
 TODO again COMMIT [passing speec for being on rails](https://github.com/failure-driven/game-app/commit/2f5c9be4f02be0c5b49f44397cb3845cdf3a7039)
 
@@ -498,6 +498,378 @@ COMMIT [:tada: simplified flow by putting code in page fragment](https://github.
 
 # React and Jest
 
+Now that we have Rails setup with integration testing, it is time to add our frontend framework ReactJS. Again even though this is iteration 0 we will still drive it out with some tests. You may have noticed our first test we called `spec/features/flows/game-app_spec.rb`. The idea of a flow is that it flows throught the system and has flow on effects. This is not really what our game spec is doing, it is just checkint that we have testing setup up by checking the default page. To drive out our React tests, rather then creating a flow we will jump down a layer and create a more suitable test known as a page mechanic.
+
+```
+mkdir -p spec/features/mechanics
+```
+
+```rb
+cat > spec/features/mechanics/game_spec.rb
+require 'rails_helper'
+
+feature 'Game', js: true do
+  scenario 'game is a React single page app (SPA)' do
+    When 'user visits the game' do
+      visit('/game')
+    end
+
+    Then 'user sees they are on react' do
+      wait_for { focus_on(:game).message_and_versions }.to eq(
+        message: 'You are on react',
+        react:   '16.7',
+        node:    '10.10.0'
+      )
+    end
+  end
+end
+```
+
+Here we already have the expctation of using a page fragment so let's create one.
+
+```rb
+cat > spec/support/features/page_fragments/game.rb
+module PageFragments
+  module Game
+    def message_and_versions
+      {
+        message: browser.find('span[@data-id="message"]').text,
+        react_version: browser.find('span[@data-id="react-version"]').text,
+        node_version: browser.find('span[@data-id="node-version"]').text
+      }
+    end
+  end
+end
+```
+
+as we will be building this up oursleves we can use a simplified way of finding elements. In this case we are using TODO `data-id` (TODO or whatever the recommended way of doing this is) we can also later remove this from our production build artifact if we want to (TODO how do you do that?)
+
+running this brings back an error
+
+```sh
+Failures:
+
+  1) Game game is a React single page app (SPA)
+     ...
+     ActionController::RoutingError:
+       No route matches [GET] "/game"
+```
+
+but as the general idea of the test is in place we can pend it as per before and commit
+
+```rb
+feature 'Game', js: true do
+  scenario 'game is a React single page app (SPA)' do
+    When 'user visits the game' do
+      pending("we don't have route")
+      visit('/game')
+```
+
+COMMIT [:construction: need to render a React component](https://github.com/failure-driven/game-app/commit/634c10691679edc2d25b8db593ea4542bd02465e)
+
+To utilise some rails generator magic we will create a GameController with an index action, a view and a basic test.
+
+```sh
+bundle exec rails generate controller GameController index --no-assets --skip-routes --no-helper --no-view-specs
+
+      create  app/controllers/game_controller.rb
+      invoke  erb
+      create    app/views/game
+      create    app/views/game/index.html.erb
+      invoke  rspec
+      create    spec/controllers/game_controller_spec.rb
+```
+
+Now we can add a specific route to `config/routes.rb` file like
+
+```rb
+Rails.application.routes.draw do
+  ...
+  get '/game' => 'game#index'
+end
+```
+
+Running the tests still fails as we do not have the required ReactJS information but no longer for the missing route. We can move our pending message down in `spec/features/mechanics/game_spec.rb`
+
+```diff
+    When 'user visits the game' do
+-     pending("we don't have route")
+      visit('/game')
+    end
+
+    Then 'user sees they are on react' do
++     pending("We're not rendering a ReactJS component")
+      ...
+```
+
+And running all the specs shows us the controller spec and the failing mechanic
+
+```sh
+rspec
+  GameController
+  GET #index
+  returns http success
+
+Game App
+
+  When user visits the app
+  Then user sees they are on rails
+  I have a game app
+
+Game
+  When user visits the game
+  Then user sees they are on react (FAILED)
+  game is a React single page app (SPA) (PENDING: we don't have route)
+```
+
+We are good to commit
+
+COMMIT [:construction: add controller to hold our react SPA](https://github.com/failure-driven/game-app/commit/1a0f8ab268f3dc6ffc2f014bcfd26413c4f355aa)
+
+Rails 6 comes with `webpacker` gem by default. This means we can use it to install react for us.
+
+````sh
+# looking at all the things that webpacker can do
+bundle exec rails --tasks webpacker
+  rails webpacker                     # Lists all available tasks in Webpacker
+  rails webpacker:binstubs            # Installs Webpacker binstubs in this application
+  rails webpacker:check_binstubs      # Verifies that webpack & webpack-dev-server are present
+  rails webpacker:check_node          # Verifies if Node.js is installed
+  rails webpacker:check_yarn          # Verifies if Yarn is installed
+  rails webpacker:clobber             # Remove the webpack compiled output directory
+  rails webpacker:compile             # Compile JavaScript packs using webpack for production with digests
+  rails webpacker:info                # Provide information on Webpacker's environment
+  rails webpacker:install             # Install Webpacker in this application
+  rails webpacker:install:angular     # Install everything needed for Angular
+  rails webpacker:install:coffee      # Install everything needed for Coffee
+  rails webpacker:install:elm         # Install everything needed for Elm
+  rails webpacker:install:erb         # Install everything needed for Erb
+  rails webpacker:install:react       # Install everything needed for React
+  rails webpacker:install:stimulus    # Install everything needed for Stimulus
+  rails webpacker:install:typescript  # Install everything needed for Typescript
+  rails webpacker:install:vue         # Install everything needed for Vue
+  rails webpacker:verify_install      # Verifies if Webpacker is installed
+  rails webpacker:yarn_install        # Support for older Rails versions
+```
+
+```sh
+rails webpacker:install:react
+```
+
+this modifies some files
+
+```sh
+modified:   babel.config.js
+modified:   config/webpacker.yml
+modified:   package.json
+modified:   yarn.lock
+```
+
+and creates a demo component `app/javascript/packs/hello_react.jsx` this can be rendered in our game view `app/views/game/index.html.erb` with the following
+
+```erb
+<%= javascript_pack_tag 'hello_react' %>
+```
+
+Let's commit before we change this to what we want.
+
+COMMIT [:tada: react render in rails view](https://github.com/failure-driven/game-app/commit/64a64ec40084f60f84149007534f2bf51bf37d28)
+
+## Adding Jest
+
+Now we want to drive out behaviour at the React component test to show the version of react which is being used. We do this with Jest test framework. To add this to the project we do the following.
+
+```sh
+yarn add jest babel-jest --save-dev
+```
+
+and create a basic jest unit test
+
+```react
+cat > app/javascript/packs/game.test.js
+import React from 'react';
+
+describe('game', () => {
+  it('we have jest tests', () => {
+    expect(true).toEqual(true);
+  });
+});
+```
+
+configure `package.json` to be able to run jest tests
+
+```json
+  ...
+  "scripts": {
+    "test": "jest"
+  }
+```
+
+which can now be run with
+
+```sh
+jest test
+```
+
+or if we want to keep the tests running we pass the `--watchAll` flag to the jest program using the `--` flag
+
+```sh
+jest test -- --watchAll
+```
+
+Here we see there is a problem as there is a `config/webpack/test.js` file that matches the default test file matcher for Jest `/test\.js/` to ignore this we can do that through a `jest.config.js` file as follows
+
+```js
+cat > jest.config.js
+module.exports = {
+  testPathIgnorePatterns: ["config/webpack"]
+}
+```
+
+now we have Jest setup with 1 passing test and we are ready to commit
+
+COMMIT [:wrench: jest test setup](https://github.com/failure-driven/game-app/commit/036a3ad22e2f0dc3934803faf4d4b68a11e26bd8)
+
+## Enzyme for React Component testing
+
+Although Jest has a way of testing react comonents https://jestjs.io/docs/en/tutorial-react the de-facto standard is to use Airbnb's enzyme. Let's set that up.
+
+```sh
+yarn add enzyme enzyme-adapter-react-16 --save-dev
+```
+
+we can now update our demo Jest test `app/javascript/packs/game.test.js` to actually test a React component.
+
+```js
+import React from 'react';
+import { configure, shallow } from 'enzyme';
+import Game from './game';
+import Adapter from 'enzyme-adapter-react-16';
+
+configure({ adapter: new Adapter() });
+
+describe('Game', () => {
+  it('renders a <div>', () => {
+    const wrapper = shallow(<Game />);
+    expect(wrapper.type()).toBe('div');
+    expect(wrapper.prop('children')).toBe('16.7.0');
+  });
+});
+```
+
+This will require that our game component returns a `div` with the text child component to be the react version number, `16.7.0`. Running this will fail until you implement this with something like the following.
+
+```js
+import React from 'react';
+const Game = props => <div>{React.version}</div>;
+export default Game;
+```
+
+COMMIT [:tada: a first component tested with enzyme](https://github.com/failure-driven/game-app/commit/f6ef499c6ba3bd41c78c19a318b2e8473f8d91c5)
+
+Probably best to move the enzyme config to a central `app/javascript/jestSetup.js` file
+
+TODO confirm above location for jestSetup file
+
+```
+cat > jestSetup.js
+import Adapter from 'enzyme-adapter-react-16';
+import { configure } from 'enzyme';
+
+configure({ adapter: new Adapter() });
+```
+
+and this generic code can be removed from `app/javascript/packs/game.test.js`
+
+COMMIT [:wrench: add enzyme setup to jestSetup.js](https://github.com/failure-driven/game-app/commit/407928faa2a26057f8aa59cc89492fe354e3624f)
+
+Now removing the demo `hello_react.jsx` and wiring up game to be rendered to `game#index`
+
+COMMIT [wire up game to be rendered by game#index'](https://github.com/failure-driven/game-app/commit/bb94c10e2ac0dc7d3956052e6930cd8f2bd38c24)
+
+Test driving out the component to give us the react message and version gives us this for the test
+
+```js
+describe('Game', () => {
+  let wrapper;
+
+  beforeEach(() => {
+    wrapper = shallow(<Game />);
+  });
+
+  it('renders a <div>', () => {
+    expect(wrapper.type()).toBe('div');
+  });
+
+  it('renders a div with message and one with version as children', () => {
+    expect(wrapper.find('[data-test="message"]').prop('children')).toBe(
+      'You are on React'
+    );
+    expect(wrapper.find('[data-test="react-version"]').prop('children')).toBe(
+      '16.7.0'
+    );
+  });
+});
+```
+
+and this for the implementation
+
+```js
+const Game = props => (
+  <div>
+    <div data-test="message">You are on React</div>
+    <div>
+      React Version: <span data-test="react-version">{React.version}</span>
+    </div>
+  </div>
+);
+```
+
+Now our react component test passes as does the assertion in our game mechanic so we can un pend that and we are all green
+
+COMMIT [:tada: we have react SPA](https://github.com/failure-driven/game-app/commit/8caa60b2af0292b0e2604c84e11fc32fed19b19b)
+
+As the react expectations are not doing anything clever around passing variables down to other components or dealing with state, we can replace the tests with a enzyme snapshot test.
+
+First we will install and setup `enzyme-to-json`
+
+```sh
+yarn add enzyme-to-json --save-dev
+```
+
+adding to `jest.config.js` the following line
+
+```js
+  snapshotSerializers: ['enzyme-to-json/serializer'],
+```
+
+now all the other tests in game.test.js can be replaced with the snapshot
+
+```js
+it('renders correctly', () => {
+  expect(wrapper).toMatchSnapshot();
+});
+```
+
+and the snapshot looks like this
+
+```js
+cat app/javascript/packs/__snapshots__/game.test.js.snap
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Game renders correctly 1`] = `ReactWrapper {}`;
+```
+
+COMMIT [:confused: added snapshot testing but nothing is in the snapshot](https://github.com/failure-driven/game-app/commit/c71ac622a3372772754b50732ecbeb2bcc5f80fd)
+
+TODO maybe the snapshot is not good in this case
+
+TODO auto reload for webpack https://github.com/rails/webpacker#development
+
+TODO how to remove `data-test` attributes
+
+TODO rails generator to get to here
+
 # Rubocop and ESlint
 
 # CI
@@ -508,3 +880,4 @@ COMMIT [:tada: simplified flow by putting code in page fragment](https://github.
 
 - GraphQL
 - typescript
+````
