@@ -30,20 +30,20 @@ ability to use vagrant to use a pre configured machine setup.
 Options for using the latest and greatest - as of the time of writing
 
 - ruby 2.6.0 - https://www.ruby-lang.org/en/ 25 Dec 2018
-  ```
+  ```sh
   brew install rbenv
   rbenv install 2.6.0
   ruby -v
   ```
 - node 11.8.0 - https://nodejs.org/en/ 24 Jan 2019
-  ```
+  ```sh
   brew install nvm
   nvm install 11.8.0
   node -v
     v11.8.0
   ```
 - rails 6.0.0.beta1 https://rubygems.org/gems/rails/versions 18 Jan 2019
-  ```
+  ```sh
   gem install bundler
   gem install rails --pre
   rails -v
@@ -51,7 +51,7 @@ Options for using the latest and greatest - as of the time of writing
   ```
 - postgres
   TODO confirm? create default DB named username? some basic commands?
-  ```
+  ```sh
   brew install postgres
   brew services start postgres
   psql
@@ -64,7 +64,7 @@ testing framework.
 
 TODO - how to make npm default over yarn?
 
-```
+```sh
 rails new game-app --database=postgresql --skip-test
 
 rails server # start dev rails server
@@ -81,11 +81,11 @@ open http://localhost:3000
   Ruby version: ruby 2.6.0p0 (2018-12-25 revision 66547) [x86_64-darwin16]
 ```
 
-COMMIT ":tada: rails new"
+COMMIT [:tada: rails new](https://github.com/failure-driven/game-app/commit/110a9d9229048b62da2371d62f39db2b7bd66d37)
 
-Add RSpec with capybara, selenium webdriver, and screen shots.
+## Add RSpec with capybara, selenium webdriver, and screen shots.
 
-```
+```rb
 # in Gemfile under group :development, :test add
 group :development, :test do
   ...
@@ -97,17 +97,22 @@ group :development, :test do
   gem 'selenium-webdriver'
   gem 'rspec-wait'
 end
+```
 
+```sh
 bundle install
 bundle          # by default does the install
 
 rails generate rspec:install  # to initialize rspec
+
 rspec
   No examples found.
 
   Finished in 0.00031 seconds (files took 0.12398 seconds to load)
   0 examples, 0 failures
+```
 
+```sh
 mkdir -p spec/features/flows/
 
 cat > spec/features/flows/game-app_spec.rb
@@ -127,14 +132,18 @@ feature 'Game App', js: true do
   end
 end
 ^D
+```
 
+```sh
 rspec
 # Failure
   Failure/Error: raise ActionController::RoutingError, "No route matches [#{env['REQUEST_METHOD']}] #{env['PATH_INFO'].inspect}"
 
   ActionController::RoutingError:
     No route matches [GET] "/"
+```
 
+```sh
 # add the default rails/welcome#index
 vi config/routes.rb
 
@@ -142,34 +151,35 @@ Rails.application.routes.draw do
   ...
   get '/' => "rails/welcome#index"
 end
+```
+
+```sh
+rspec
 
 # Failure
 Failure/Error: wait_for { page }.to have_content("Yay I'm on Rails")
   expected to find text "Yay I'm on Rails" in "Yay! You’re on Rails!\nRails version: 6.0.0.beta1\nRuby version: ruby 2.6.0p0 (2018-12-25 revision 66547) [x86_64-darwin16]"
+```
 
 Assuming we have no idea but we want to move on, we can pend the spec. Just say
 that it is in progress, in fact it should actually fail.
 
 > spec/features/flows/game-app_spec.rb
-```
 
-...
+```rb
 Then 'user sees they are on rails' do
-pending "for some reason I am not on rails?"
-wait_for { page }.to have_content("Yay I'm on Rails")
+  pending "for some reason I am not on rails?"
+ wait_for { page }.to have_content("Yay I'm on Rails")
 end
-
 ```
 
 returns with the pending
 
 ```
-
     When user visits the app
     Then user sees they are on rails (FAILED)
 
 I have a game app (PENDING: for some reason I am not on rails?)
-
 ```
 
 COMMIT "a pending spec"
@@ -178,60 +188,66 @@ TODO currently COMMIT [:construction: specs setup and a pending spec](https://gi
 
 - split out the setup from the pending spec
 
-# configure the browser and screen shots
+## Configure the browser and screen shots
+
+```sh
 vi spec/rails_helper.rb
 
-    7 require 'rspec/rails'
-    8 # Add additional requires below this line. Rails is not loaded until this point!
-    9
-   10 Dir['spec/support/**/*.rb'].each do |file|
-   11   require Rails.root.join(file).to_s
-   12 end
+  7 require 'rspec/rails'
+  8 # Add additional requires below this line. Rails is not loaded until this point!
+  9
+  10 Dir['spec/support/**/*.rb'].each do |file|
+  11 require Rails.root.join(file).to_s
+  12 end
+```
 
+```sh
 mkdir -p spec/support
 mkdir -p tmp/capybara
+```
 
+```rb
 cat > spec/support/capybara.rb
-  require 'capybara/rspec'
-  require 'capybara/rails'
-  require 'capybara-screenshot/rspec'
+require 'capybara/rspec'
+require 'capybara/rails'
+require 'capybara-screenshot/rspec'
 
-  Capybara.register_driver :selenium_chrome do |app|
-    Capybara::Selenium::Driver.new(
-        app,
-        browser: :chrome,
-        desired_capabilities: {
-            chromeOptions: {
-                args: ['window-size=800,960']
-            }
-        }
-    )
-  end
+Capybara.register_driver :selenium_chrome do |app|
+Capybara::Selenium::Driver.new(
+app,
+browser: :chrome,
+desired_capabilities: {
+chromeOptions: {
+args: ['window-size=800,960']
+}
+}
+)
+end
 
-  Capybara.javascript_driver = :selenium_chrome
+Capybara.javascript_driver = :selenium_chrome
 
-  Capybara::Screenshot.webkit_options = {
-    width: 1024,
-    height: 768
-  }
+Capybara::Screenshot.webkit_options = {
+width: 1024,
+height: 768
+}
 
-  Capybara::Screenshot.autosave_on_failure = false
-  Capybara::Screenshot.prune_strategy = :keep_last_run
+Capybara::Screenshot.autosave_on_failure = false
+Capybara::Screenshot.prune_strategy = :keep_last_run
 
-  RSpec.configure do |config|
-    config.after do |example|
-      if (example.metadata[:type] == :feature) && example.metadata[:js] && example.exception.present?
-        Capybara::Screenshot.screenshot_and_open_image
-      end
-    end
-  end
+RSpec.configure do |config|
+config.after do |example|
+if (example.metadata[:type] == :feature) && example.metadata[:js] && example.exception.present?
+Capybara::Screenshot.screenshot_and_open_image
+end
+end
+end
 ```
 
 from the screen shot we see it is that "You're" on rails so updating our spec
 
 > spec/features/flows/game-app_spec.rb
 
-```{rb}
+```rb
 require 'rails_helper'
 
 feature 'Game App', js: true do
@@ -252,7 +268,7 @@ end
 
 passing test
 
-```
+```sh
     When user visits the app
     Then user sees they are on rails
   I have a game app
@@ -267,7 +283,7 @@ TODO again COMMIT [passing speec for being on rails](https://github.com/failure-
 
 - split out capybara setup from the actual commit
 
-```
+```sh
 Game App
 Capybara starting Puma...
 * Version 3.12.0 , codename: Llamas in Pajamas
@@ -288,7 +304,7 @@ no binding pry
 
 > Gemfile
 
-```
+```sh
 group :development, :test do
   ...
   gem 'pry-rails'
@@ -308,7 +324,7 @@ Having looked at the source of the default rails page we see that the version ca
 
 > spec/features/flows/game-app_spec.rb
 
-```{rb}
+```rb
 require 'rails_helper'
 
 feature 'Game App', js: true do
@@ -330,23 +346,24 @@ running this with `rspec` we are put into a pry debug console. We can view the
 page in the browser and even interact with it and we can also call code in the
 console like so.
 
-```
+```sh
 version.text
 => "Rails version: 6.0.0.beta1\nRuby version: ruby 2.6.0p0 (2018-12-25 revision 66547) [x86_64-darwin16]"
 ```
 
 from the browser we can inspect that we have
 
-```{html}
+```html
 <p class="version">
-  <strong>Rails version:</strong> 6.0.0.beta1<br>
-  <strong>Ruby version:</strong> ruby 2.6.0p0 (2018-12-25 revision 66547) [x86_64-darwin16]
+  <strong>Rails version:</strong> 6.0.0.beta1<br />
+  <strong>Ruby version:</strong> ruby 2.6.0p0 (2018-12-25 revision 66547)
+  [x86_64-darwin16]
 </p>
 ```
 
 we can assert as follows to make sure we have rails version 6 and ruby version 2.6
 
-```
+```rb
 version.text[/(Rails version: )(?<version>[^\n]*)/, "version"]
 => "6.0.0.beta1"
 version.text[/(Ruby version: )(?<version>[^\n]*)/, "version"]
@@ -357,7 +374,7 @@ which we can implement as
 
 > spec/features/flows/game-app_spec.rb
 
-```{rb}
+```rb
 require 'rails_helper'
 
 feature 'Game App', js: true do
@@ -398,8 +415,11 @@ There is room for refactoring. Although this now passes it is a bit of a mess fo
 
 page fragment setup
 
-```
+```sh
 mkdir -p spec/support/features/page_fragments
+```
+
+```rb
 cat > spec/support/features/page_fragments.rb
 module PageFragments
   Page = Struct.new :rspec_example do
@@ -424,7 +444,9 @@ module PageFragments
     page
   end
 end
+```
 
+```rb
 # add following to end of spec/rails_helper.rb
   ...
   # include PageFragments in features
@@ -438,7 +460,7 @@ COMMIT [:wrench: page fragment loading setup](https://github.com/failure-driven/
 
 Now we can write a simple page fragment to return the welcome page message and ruby and rails versions.
 
-```
+```rb
 cat > spec/support/features/page_fragments/welcome.rb
 module PageFragments
   module Welcome
@@ -458,7 +480,7 @@ and to use the page fragment
 
 > spec/features/flows/game-app_spec.rb
 
-```{rb}
+```rb
 require 'rails_helper'
 
 feature 'Game App', js: true do
@@ -480,7 +502,7 @@ end
 
 The failure is not too perfect but good enough. In this case it is more about getting page fragments setup then anything else
 
-```
+```diff
 Failures:
   1) Game App I have a game app
      Failure/Error:
@@ -488,10 +510,10 @@ Failures:
        ...
        Diff:
         :message => "Yay! You’re on Rails!",
-       -:rails_version => (match /^6.0.0/),
-       -:ruby_version => (match /^ruby 2.7.0/),
-       +:rails_version => "6.0.0.beta1",
-       +:ruby_version => "ruby 2.6.0p0 (2018-12-25 revision 66547) [x86_64-darwin16]",
+-      -:rails_version => (match /^6.0.0/),
+-      -:ruby_version => (match /^ruby 2.7.0/),
++      +:rails_version => "6.0.0.beta1",
++      +:ruby_version => "ruby 2.6.0p0 (2018-12-25 revision 66547) [x86_64-darwin16]",
 ```
 
 COMMIT [:tada: simplified flow by putting code in page fragment](https://github.com/failure-driven/game-app/commit/e1231c40a768d6f12590030d0cab5f4852a9b776)
@@ -500,7 +522,7 @@ COMMIT [:tada: simplified flow by putting code in page fragment](https://github.
 
 Now that we have Rails setup with integration testing, it is time to add our frontend framework ReactJS. Again even though this is iteration 0 we will still drive it out with some tests. You may have noticed our first test we called `spec/features/flows/game-app_spec.rb`. The idea of a flow is that it flows throught the system and has flow on effects. This is not really what our game spec is doing, it is just checkint that we have testing setup up by checking the default page. To drive out our React tests, rather then creating a flow we will jump down a layer and create a more suitable test known as a page mechanic.
 
-```
+```sh
 mkdir -p spec/features/mechanics
 ```
 
@@ -628,7 +650,7 @@ COMMIT [:construction: add controller to hold our react SPA](https://github.com/
 
 Rails 6 comes with `webpacker` gem by default. This means we can use it to install react for us.
 
-````sh
+```sh
 # looking at all the things that webpacker can do
 bundle exec rails --tasks webpacker
   rails webpacker                     # Lists all available tasks in Webpacker
@@ -667,7 +689,7 @@ modified:   yarn.lock
 
 and creates a demo component `app/javascript/packs/hello_react.jsx` this can be rendered in our game view `app/views/game/index.html.erb` with the following
 
-```erb
+```rb
 <%= javascript_pack_tag 'hello_react' %>
 ```
 
@@ -685,8 +707,8 @@ yarn add jest babel-jest --save-dev
 
 and create a basic jest unit test
 
-```react
-cat > app/javascript/packs/game.test.js
+```js
+cat > app / javascript / packs / game.test.js;
 import React from 'react';
 
 describe('game', () => {
@@ -720,10 +742,10 @@ jest test -- --watchAll
 Here we see there is a problem as there is a `config/webpack/test.js` file that matches the default test file matcher for Jest `/test\.js/` to ignore this we can do that through a `jest.config.js` file as follows
 
 ```js
-cat > jest.config.js
+cat > jest.config.js;
 module.exports = {
-  testPathIgnorePatterns: ["config/webpack"]
-}
+  testPathIgnorePatterns: ['config/webpack']
+};
 ```
 
 now we have Jest setup with 1 passing test and we are ready to commit
@@ -771,8 +793,8 @@ Probably best to move the enzyme config to a central `app/javascript/jestSetup.j
 
 TODO confirm above location for jestSetup file
 
-```
-cat > jestSetup.js
+```js
+cat > jestSetup.js;
 import Adapter from 'enzyme-adapter-react-16';
 import { configure } from 'enzyme';
 
@@ -880,4 +902,3 @@ TODO rails generator to get to here
 
 - GraphQL
 - typescript
-````
