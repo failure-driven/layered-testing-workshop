@@ -892,13 +892,115 @@ TODO how to remove `data-test` attributes
 
 TODO rails generator to get to here
 
-# Rubocop and ESlint
+## Rubocop, ESlint and prettier
 
-# CI
+Before we get too caried away writing any code we should make sure we can maintain our code quality with tools like Rubcop and ESLint.
 
-# CD
+Adding `rubocop` as a gem dependency
 
-# TODO
+```rb
+group :development, :test do
+  ...
+  gem 'rubocop'
+end
+```
+
+we can now run `rubocop` but there will be a number of errors we don't care to much about like files that have been mostly generated like those in `config/` directory, using the `.rubocop.yml` config file as per next commit
+
+COMMIT [:construction: basic rubocop setup]()
+
+Now running rubocop and applying the fixes automatically we have a more consistent code base.
+
+```sh
+rubocop --auto-correct
+rubocop -a             # shorter version
+```
+
+COMMIT [:wrench: adhere to rubocop recommendations]()
+
+TODO how to auto save with rubocop recommendations?
+TODO git pre commit hook for lines changed only
+
+For ESlint
+
+```sh
+yarn add eslint eslint-plugin-react babel-eslint eslint-plugin-jest --save-dev
+```
+
+```js
+// package.json
+"scripts": {
+  "test": "jest",
+  "lint": "eslint"
+}
+```
+
+```js
+// .eslintrc.js
+module.exports = {
+  plugins: ['react', 'jest'],
+  extends: [
+    'eslint:recommended',
+    'plugin:react/recommended',
+    'plugin:jest/recommended'
+  ],
+  parser: 'babel-eslint',
+  env: {
+    browser: true
+  },
+  rules: {
+    quotes: ['error', 'single', { avoidEscape: true }],
+    'comma-dangle': ['error', 'always-multiline']
+  }
+};
+```
+
+COMMIT [:wrench: configure eslint]()
+
+```sh
+yarn lint -- --fix app/javascript/
+```
+
+and some js fixes
+
+COMMIT [:wrench: adhere to eslint]()
+
+also running tests at this time shows that snapshot tests work?
+
+```diff
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+-exports[`Game renders correctly 1`] = `ShallowWrapper {}`;
++exports[`Game renders correctly 1`] = `
++<div>
++  <div
++    data-test="message"
++  >
++    You are on React
++  </div>
++  <div>
++    React Version:
++    <span
++      data-test="react-version"
++    >
++      16.7.0
++    </span>
++  </div>
++</div>
++`;
+```
+
+COMMIT [:confused: snapshot tests now work?]()
+
+## CI
+
+## CD
+
+## TODO
 
 - GraphQL
 - typescript
+
+```
+
+```
