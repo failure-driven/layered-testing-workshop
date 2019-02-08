@@ -4,7 +4,34 @@ A workshop on outside in, multi layered, behavioural driven development (BDD)
 
 # Introduction
 
-  * TODO
+* what are we trying to build?
+* how are we plannig to build it?
+* what we are attempting to achieve?
+
+# Overview
+
+- Iteration 0 - Rails/React, test suite, CI/CD
+  build a template https://guides.rubyonrails.org/rails_application_templates.html
+  ```sh
+  gem install layered-testing
+  layered-testing game-app
+  ```
+  - details of all the things installed, quick tour
+    - flow, mechanic, jest test, api spec, request spec, controller spec, model specs, external services specs
+    - generic admin setup, visit setup thing, interact with setup thing, see end of interaction
+  - extensions
+    - push to github
+    - setup CI
+    - setup CD to heroku/AWS/Alicloud
+
+* story 1
+  - thin slice
+  - admin creates a game
+  - with terms
+  - user visits site
+  - user plays game
+  - game
+* story 2
 
 # iteration 0 - WebApp, CI/CD
 
