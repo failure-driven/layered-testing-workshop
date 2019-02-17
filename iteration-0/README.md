@@ -7,7 +7,7 @@
 > So that I have delivery to the web
 
 The aim of iteration 0 is to have all the code and tooling in
-place to be able to regularily and confidently deploy to
+place to be able to regularly and confidently deploy to
 production. These means setting up:
 
 - The code frameworks - Rails and ReactJS
