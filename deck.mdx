@@ -1,0 +1,235 @@
+import { Head } from 'mdx-deck'
+
+# Multi layer BDD
+
+## Behavioural Driven Development
+## for modern rails web apps
+
+@selenasmall88 @saramic
+
+---
+
+# The Session
+
+* Overview of what we will cover
+* Integration from the top down
+* dive into some code
+  ```
+  https://github.com/failure-driven/game-app
+  ./bin/full-build
+
+  docker-compose up
+  ```
+* imp-ortance of testing
+* some more code
+* testing at scale
+* fun activity
+* recap
+
+---
+
+# The Fine Print
+
+* Mulit layer
+* BDD
+* Modern Rails App
+* Production Scale
+* Fun App
+
+---
+
+# Modern Rails App
+
+* Rails API backend
+* Admin in standard rails
+* Customer frontend mostly a SPA (Single Page App)
+
+[ diagram ]
+
+---
+
+# Primarily about testing
+
+* More lines of tests than production code
+* Main contribution:
+  * write better and more tests,
+  * get people to to talk to each oterh
+
+
+* [@anaulin](https://twitter.com/anaulin) blog
+* [things nobody told me about being a software
+  engineer](https://anaulin.org/blog/things-nobody-told-me-about-being-a-software-engineer/)
+
+---
+
+# Testing
+
+<table>
+  <tr>
+    <td>Given</td>
+    <td>Arrange</td>
+  </tr>
+  <tr>
+    <td>When</td>
+    <td>Act</td>
+  </tr>
+  <tr>
+    <td>Then</td>
+    <td>Assert</td>
+  </tr>
+</table>
+
+---
+
+# Testing
+
+* ~~Given~~
+* When
+* Then
+
+---
+
+# Testing
+
+* When
+* Then
+
+
+* When
+* Then
+
+
+* When
+* Then
+
+---
+
+# Instagram Flow
+
+* When
+* Then
+
+
+* When
+* Then
+
+
+* When
+* Then
+
+---
+
+# Your turn
+
+* instagram
+* twitter
+* AirBnb
+* Uber
+* ... your choice
+
+---
+
+# Core Instagram Flows
+
+---
+
+# Things to take note of
+
+* High level
+* don't repeat yourself
+* actions that have "flow on effects"
+* multiple actors
+
+---
+
+# Demo of a signup process
+
+* user gets an id and leaves
+* user registers an alias and alias is used in app
+* user registers an alias which is rejected
+* user registers an alias and an image which is recorded for others to see
+
+---
+
+# What are the tests?
+
+---
+
+# The tests
+
+* BDD flow
+* Mechanics of the page
+* API integration
+* external integration
+* Unit
+  * controller
+  * serilaizer
+  * model
+  * F/E component
+
+---
+
+# Collate ideas
+
+---
+
+# Code run through
+
+* straight out RSpec
+* RSpec with Given/When/Then
+
+---
+
+# Extension exercise
+
+---
+
+# Flakey Tests
+
+- janky load behaviour
+- transition state
+- ...
+
+---
+
+# Extension exercise
+
+---
+
+# Testing Gotchas
+
+- pause and force error
+
+---
+
+# What to test where
+
+---
+
+# what does this code do?
+
+- analyse flow
+
+---
+
+# see the flow in acction
+
+---
+
+# Play the game
+
+---
+
+# Review 
+
+* organise your tests
+* outside in
+* behaviour driven
+* flakey tests are broken app for the user
+
+---
+
+# THE END
+
+<https://failure-driven.com>
+
