@@ -71,3 +71,12 @@ main focus - flow mechanic compoent test - rest is a bonus
 
 - before and after quiz to rate level at which people are at and ultiately if
   they improve in the quiz they know they have learnt something.
+
+## Flakies
+
+- select things that are there not not there
+  - find all buttons rather then find a button is not there - at first load it
+    probably is not
+  - find all things within an element or make sure there are some things -
+    again at load time there are no buttons so yours won't be there either
+
