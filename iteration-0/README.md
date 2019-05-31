@@ -648,6 +648,8 @@ We are good to commit
 
 COMMIT [:construction: add controller to hold our react SPA](https://github.com/failure-driven/game-app/commit/1a0f8ab268f3dc6ffc2f014bcfd26413c4f355aa)
 
+### Setup React
+
 Rails 6 comes with `webpacker` gem by default. This means we can use it to install react for us.
 
 ```sh
